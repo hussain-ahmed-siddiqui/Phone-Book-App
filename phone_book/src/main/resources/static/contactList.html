@@ -5,6 +5,51 @@
     <title>Contact List</title>
 </head>
 <body>
+<input type="text" id="searchBox" placeholder="Search contacts...">
+<button onclick="searchContacts()">Search</button>
+
+<ul id="contactList">
+    <!-- Contacts will be listed here -->
+</ul>
+
+<script >
+    // Function to load all contacts
+function loadContacts() {
+    fetch('/api/contacts')
+        .then(response => response.json())
+        .then(contacts => {
+            const list = document.getElementById('contactList');
+            list.innerHTML = ''; // Clear existing list
+            contacts.forEach(contact => {
+                const li = document.createElement('li');
+                li.textContent = contact.name; // Assuming 'contact' has a 'name' property
+                list.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Call loadContacts on page load
+window.onload = loadContacts;
+
+// Function to search contacts by name
+function searchContacts() {
+    const searchQuery = document.getElementById('searchBox').value;
+    fetch(`/api/contacts/search?name=${encodeURIComponent(searchQuery)}`)
+        .then(response => response.json())
+        .then(contacts => {
+            const list = document.getElementById('contactList');
+            list.innerHTML = ''; // Clear existing list
+            contacts.forEach(contact => {
+                const li = document.createElement('li');
+                li.textContent = contact.name;
+                list.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+</script> <!-- Link to your JavaScript file -->
 
 </body>
 </html>
