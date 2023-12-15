@@ -49,7 +49,9 @@ public class Contact {
     }
 
     public void setName() {
-        this.name = this.first_name+" "+this.middle_name+" "+this.last_name;
+        this.name = this.first_name;
+        if(this.middle_name!=null) name=name+" "+this.middle_name;
+        if(this.last_name!=null ) name= name +" "+this.last_name;
     }
 
     public String getFirst_name() {

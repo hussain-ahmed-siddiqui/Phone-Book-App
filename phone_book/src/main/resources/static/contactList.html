@@ -15,14 +15,15 @@
 <script >
     // Function to load all contacts
 function loadContacts() {
-    fetch('/api/contacts')
+    fetch('/contacts')
         .then(response => response.json())
         .then(contacts => {
+            console.log(contacts);
             const list = document.getElementById('contactList');
             list.innerHTML = ''; // Clear existing list
             contacts.forEach(contact => {
                 const li = document.createElement('li');
-                li.textContent = contact.name; // Assuming 'contact' has a 'name' property
+                li.textContent = contact.name +" "+contact.phoneNum; // Assuming 'contact' has a 'name' property
                 list.appendChild(li);
             });
         })

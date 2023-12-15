@@ -7,6 +7,7 @@ import com.cloudassest.intern.phone_book.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,12 +16,16 @@ public class PhoneServices {
     ContactRepository contactRepository;
 @Autowired
     UserRepository userRepository;
-
+    //for fetching user account
     public User findByUsername(String username) {
-        return null;
+        User user = new User(username,"03363482817");
+        return user;
     }
-
+    //for fetching the contacts associated with the user that is found by the findByUsername() function
     public List<Contact> findByUser(User currentUser) {
-        return null;
+        Contact contact = new Contact(currentUser.getUserName(),currentUser.getPhoneNum());
+        List<Contact> contacts = new ArrayList<>();
+        contacts.add(contact);
+        return contacts;
     }
 }
