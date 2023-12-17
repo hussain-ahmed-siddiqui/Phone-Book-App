@@ -20,16 +20,17 @@ public class PhoneServices {
 @Autowired
     UserRepository userRepository;
     //for fetching user account
-    public User findByUsername(String username) {
-        User user = new User(username,"dwdwdwdw","03363482817");
+    public User findUser(String phoneNum) {
+        User user = userRepository.findByPhoneNum(phoneNum);
+        System.out.println(user);
         return user;
     }
     //for fetching the contacts associated with the user that is found by the findByUsername() function
     public List<Contact> findByUser(User currentUser) {
-        Contact contact = new Contact(currentUser.getUserName(),currentUser.getPhoneNum());
-        List<Contact> contacts = new ArrayList<>();
-        contacts.add(contact);
-        return contacts;
+//        Contact contact = new Contact(currentUser.getUserName(),currentUser.getPhoneNum());
+
+        //        contacts.add(contact);
+        return contactRepository.findByUser(currentUser);
     }
 
     public ResponseEntity<?> registerNewUser(String userName,String password, String phoneNum, String email){
@@ -55,5 +56,16 @@ public class PhoneServices {
             return "redirect:/login.html";
         }
         return "redirect:/createContact.html";
+    }
+
+    public ResponseEntity<?> addContact(String firstName, String middleName, String lastName, String phone) {
+        Contact contact = new Contact(firstName,phone);
+        contact.setName(middleName,lastName);
+        contact.setUser(findUser("03363482817"));
+        contactRepository.save(contact);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/contacts");
+        return new ResponseEntity<>(headers,HttpStatus.FOUND);
+
     }
 }

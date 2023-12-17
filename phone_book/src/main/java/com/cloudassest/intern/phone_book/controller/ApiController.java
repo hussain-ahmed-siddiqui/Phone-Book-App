@@ -3,6 +3,7 @@ package com.cloudassest.intern.phone_book.controller;
 import com.cloudassest.intern.phone_book.model.Contact;
 import com.cloudassest.intern.phone_book.model.User;
 import com.cloudassest.intern.phone_book.service.PhoneServices;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +25,7 @@ public class ApiController {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        String username = authentication.getName();
         // Retrieve the User entity based on the username
-        return phoneServices.findByUsername("Hussain");
+        return phoneServices.findUser("03363482817");
     }
     @GetMapping("/contacts")
     public List<Contact> listUserContacts() {
@@ -32,5 +33,9 @@ public class ApiController {
         return phoneServices.findByUser(currentUser);
     }
 
+    @PostMapping("/contacts/new")
+    public ResponseEntity<?> newContact(@RequestParam String first_name, @RequestParam String middle_name, @RequestParam String last_name, @RequestParam String phone){
+        return phoneServices.addContact(first_name,middle_name,last_name,phone);
+    }
 
 }
