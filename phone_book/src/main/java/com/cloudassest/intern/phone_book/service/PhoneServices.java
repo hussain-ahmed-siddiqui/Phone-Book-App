@@ -4,14 +4,19 @@ import com.cloudassest.intern.phone_book.model.User;
 import com.cloudassest.intern.phone_book.model.Contact;
 import com.cloudassest.intern.phone_book.repositories.ContactRepository;
 import com.cloudassest.intern.phone_book.repositories.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PhoneServices {
@@ -19,17 +24,25 @@ public class PhoneServices {
     ContactRepository contactRepository;
 @Autowired
     UserRepository userRepository;
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    public HttpSession currentSession(){
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        return attr.getRequest().getSession(false);
+    }
+    public User getCurrentUser() {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attr.getRequest().getSession(false); // true == allow create
+        String phoneNum = (String) session.getAttribute("phoneNum");
+
+        return findUser(phoneNum);
+    }
     //for fetching user account
     public User findUser(String phoneNum) {
-        User user = userRepository.findByPhoneNum(phoneNum);
-        System.out.println(user);
-        return user;
+        return userRepository.findByPhoneNum(phoneNum);
     }
     //for fetching the contacts associated with the user that is found by the findByUsername() function
     public List<Contact> findByUser(User currentUser) {
-//        Contact contact = new Contact(currentUser.getUserName(),currentUser.getPhoneNum());
 
-        //        contacts.add(contact);
         return contactRepository.findByUser(currentUser);
     }
 
@@ -39,8 +52,8 @@ public class PhoneServices {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Registration failed: An account with that phone number already exists.");
         }
-
-        User newUser = new User(userName,password,phoneNum);
+        String hashedPassword = passwordEncoder.encode(password);
+        User newUser = new User(userName,hashedPassword,phoneNum);
         if(email!=null) {
             newUser.setEmail(email);
         }
@@ -50,22 +63,37 @@ public class PhoneServices {
         return new ResponseEntity<>(headers,HttpStatus.FOUND);
     }
 
-    public String AuthenticateUser(String phoneNum, String password){
+    public ResponseEntity<?> AuthenticateUser(String phoneNum, String password){
         User user = userRepository.findByPhoneNum(phoneNum);
-        if(user==null){
-            return "redirect:/login.html";
+        HttpHeaders headers = new HttpHeaders();
+
+
+        if(!passwordEncoder.matches(password, user.getPassword())){
+            headers.add("Location", "/login");
+            return new ResponseEntity<>(headers,HttpStatus.FOUND);
         }
-        return "redirect:/createContact.html";
+        if(user==null){
+            headers.add("Location", "/login");
+            return new ResponseEntity<>(headers,HttpStatus.FOUND);
+        }
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attr.getRequest().getSession(true);
+        session.setAttribute("phoneNum", phoneNum);
+        headers.add("Location", "/contacts/list");
+        return new ResponseEntity<>(headers,HttpStatus.FOUND);
     }
 
-    public ResponseEntity<?> addContact(String firstName, String middleName, String lastName, String phone) {
+    public ResponseEntity<?> addContact(String firstName, String middleName, String lastName, String phone, String email) {
         Contact contact = new Contact(firstName,phone);
         contact.setName(middleName,lastName);
-        contact.setUser(findUser("03363482817"));
+        contact.setEmail(email);
+        contact.setUser(getCurrentUser());
         contactRepository.save(contact);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/contacts");
+        headers.add("Location", "/contacts/list");
         return new ResponseEntity<>(headers,HttpStatus.FOUND);
 
     }
+
+
 }
