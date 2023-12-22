@@ -3,54 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <title>Contact List</title>
+    <link rel="stylesheet" href="/Stylesheets/contact_list.css">
 </head>
 <body>
-<input type="text" id="searchBox" placeholder="Search contacts...">
-<button onclick="searchContacts()">Search</button>
+<div class="header">
+    <input type="text" id="searchBox" placeholder="Search contacts...">
+    <button class="button" onclick="searchContacts()">Search</button>
+    <button class="button" onclick="createContact()">Create New Contact</button>
+    <button class="button" onclick="logout()">Logout</button>
+</div>
 
-<ul id="contactList">
+<table id="contactTable">
+    <!-- Table headers and body -->
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Phone Number</th>
+        <th>Email</th>
+    </tr>
+    </thead>
+    <tbody>
     <!-- Contacts will be listed here -->
-</ul>
+    </tbody>
+</table>
 
-<script >
+<script>
     // Function to load all contacts
-function loadContacts() {
-    fetch('/contacts')
-        .then(response => response.json())
-        .then(contacts => {
-            console.log(contacts);
-            const list = document.getElementById('contactList');
-            list.innerHTML = ''; // Clear existing list
-            contacts.forEach(contact => {
-                const li = document.createElement('li');
-                li.textContent = contact.name +" "+contact.phoneNum; // Assuming 'contact' has a 'name' property
-                list.appendChild(li);
-            });
+    function loadContacts() {
+        fetch('/contacts')
+            .then(response => response.json())
+            .then(contacts => {
+                console.log(contacts);
+                const tableBody = document.getElementById('contactTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = ''; // Clear existing table body
+                contacts.forEach(contact => {
+                    const row = tableBody.insertRow();
+                    const nameCell = row.insertCell(0);
+                    const phoneCell = row.insertCell(1);
+                    const emailCell = row.insertCell(2);
+                    nameCell.textContent = contact.name;
+                    phoneCell.textContent = contact.phoneNum;
+                    emailCell.textContent = contact.email; // Assuming 'contact' has an 'email' property
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Call loadContacts on page load
+    window.onload = loadContacts;
+
+    function logout(){
+        fetch('/performLogout') .then(response => {
+            if (response.ok) {
+                window.location.href = '/login'; // Redirect to login page or any other page
+            } else {
+                throw new Error('Logout failed');
+            }
         })
         .catch(error => console.error('Error:', error));
-}
 
-// Call loadContacts on page load
-window.onload = loadContacts;
+    }
 
-// Function to search contacts by name
-function searchContacts() {
-    const searchQuery = document.getElementById('searchBox').value;
-    fetch(`/api/contacts/search?name=${encodeURIComponent(searchQuery)}`)
-        .then(response => response.json())
-        .then(contacts => {
-            const list = document.getElementById('contactList');
-            list.innerHTML = ''; // Clear existing list
-            contacts.forEach(contact => {
-                const li = document.createElement('li');
-                li.textContent = contact.name;
-                list.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-</script> <!-- Link to your JavaScript file -->
+    // Function to search contacts by name
+    function searchContacts() {
+        const searchQuery = document.getElementById('searchBox').value;
+        fetch(`/api/contacts/search?name=${encodeURIComponent(searchQuery)}`)
+            .then(response => response.json())
+            .then(contacts => {
+                const tableBody = document.getElementById('contactTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = ''; // Clear existing table body
+                contacts.forEach(contact => {
+                    const row = tableBody.insertRow();
+                    const nameCell = row.insertCell(0);
+                    const phoneCell = row.insertCell(1);
+                    const emailCell = row.insertCell(2);
+                    nameCell.textContent = contact.name;
+                    phoneCell.textContent = contact.phoneNum;
+                    emailCell.textContent = contact.email; // Assuming 'contact' has an 'email' property
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
 
 </body>
 </html>

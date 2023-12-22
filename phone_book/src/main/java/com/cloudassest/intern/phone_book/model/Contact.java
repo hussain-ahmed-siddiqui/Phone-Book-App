@@ -12,7 +12,6 @@ public class Contact {
     public Contact(String first_name,String phoneNum){
         this.first_name = first_name;
         this.phoneNum = phoneNum;
-        setName();
     }
     @Id
     private String Id;
@@ -48,10 +47,10 @@ public class Contact {
         return name;
     }
 
-    public void setName() {
+    public void setName(String middle_name, String last_name) {
         this.name = this.first_name;
-        if(this.middle_name!=null) name=name+" "+this.middle_name;
-        if(this.last_name!=null ) name= name +" "+this.last_name;
+        if(middle_name!=null) name=name+" "+middle_name;
+        if(last_name!=null ) name= name +" "+last_name;
     }
 
     public String getFirst_name() {

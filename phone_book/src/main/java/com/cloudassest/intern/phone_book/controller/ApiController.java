@@ -3,6 +3,11 @@ package com.cloudassest.intern.phone_book.controller;
 import com.cloudassest.intern.phone_book.model.Contact;
 import com.cloudassest.intern.phone_book.model.User;
 import com.cloudassest.intern.phone_book.service.PhoneServices;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,17 +25,39 @@ public class ApiController {
 
 
 
-    public User getCurrentUser() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String username = authentication.getName();
-        // Retrieve the User entity based on the username
-        return phoneServices.findByUsername("Hussain");
-    }
+
     @GetMapping("/contacts")
-    public List<Contact> listUserContacts() {
-        User currentUser = getCurrentUser(); // Method to get the logged-in user
-        return phoneServices.findByUser(currentUser);
+    public List<Contact> listUserContacts(HttpServletRequest request) {
+
+        return phoneServices.findByUser(phoneServices.getCurrentUser());
     }
 
+    @PostMapping("/contacts/new")
+    public ResponseEntity<?> newContact(@RequestParam String first_name, @RequestParam String middle_name, @RequestParam String last_name, @RequestParam String email, @RequestParam String phone){
 
+        return phoneServices.addContact(first_name,middle_name,last_name,phone,email);
+    }
+    @PostMapping("/register")
+    public ResponseEntity<?> signDownxD(@RequestParam String name,@RequestParam String password, @RequestParam String phoneNum, @RequestParam String email){
+
+        return phoneServices.registerNewUser(name,password,phoneNum,email);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> getForm(@RequestParam String phoneNum, @RequestParam String password){
+//        System.out.println(name+" "+password);
+
+        return phoneServices.AuthenticateUser(phoneNum,password);
+    }
+
+    @GetMapping("/performLogout")
+    public void logout(){
+        HttpSession currSession = phoneServices.currentSession();
+        currSession.invalidate();
+
+        currSession = phoneServices.currentSession();
+        if(currSession==null){
+            System.out.println("*********************************");
+        }
+    }
 }

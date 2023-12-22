@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/Stylesheets/addContact.css">
 </head>
 <body>
-<form method="post" action="/contacts" >
-  <label for="first-name">First Name</label>
-  <input required type="text" name="first-name" id="first-name" placeholder="Enter First Name">
-  <label for="middle-name">Middle Name</label>
-  <input type="text" name="middle-name" id="middle-name" placeholder="Enter Middle Name">
-  <label for="last-name"></label>
-  <input type="text" name="last-name" id="last-name" placeholder="Enter Last Name">
-  <label for="phone"></label>
+<form method="post" action="/contacts/new">
+  <label for="first_name">First Name</label>
+  <input required type="text" name="first_name" id="first_name" placeholder="Enter First Name">
+  <label for="middle_name">Middle Name</label>
+  <input type="text" name="middle_name" id="middle_name" placeholder="Enter Middle Name">
+  <label for="last_name">Last Name</label>
+  <input type="text" name="last_name" id="last_name" placeholder="Enter Last Name">
+  <label for="email">Email</label>
+  <input type="email" name="email" id="email" placeholder="Enter email address">
+  <label for="phone">Phone Number</label>
   <input required type="number" name="phone" id="phone" placeholder="Enter Phone Number">
-    <button type="submit">Submit</button>
+  <button type="submit">Submit</button>
 </form>
 </body>
 </html>
