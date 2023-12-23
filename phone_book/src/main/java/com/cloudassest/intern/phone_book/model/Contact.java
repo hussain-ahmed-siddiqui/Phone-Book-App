@@ -46,6 +46,9 @@ public class Contact {
     public String getName() {
         return name;
     }
+    public void setName(String name){
+        this.name=name;
+    }
 
     public void setName(String middle_name, String last_name) {
         this.name = this.first_name;

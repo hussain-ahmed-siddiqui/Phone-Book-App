@@ -1,6 +1,8 @@
 package com.cloudassest.intern.phone_book.controller;
 
 import com.cloudassest.intern.phone_book.service.PhoneServices;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -13,8 +15,16 @@ public FrontendController(PhoneServices phoneServices){
 }
 
 
+    @GetMapping("/error")
+    public ResponseEntity<?> error(){
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping("/login")
-    public String redirectToLogin() {
+    public String redirectToLogin()
+    {   if(phoneServices.currentSession()!=null){
+        return "redirect:/error";
+    }
         return "redirect:/login.html";
     }
 

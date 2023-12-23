@@ -8,10 +8,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.parameters.P;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,6 +46,12 @@ public class ApiController {
 //        System.out.println(name+" "+password);
 
         return phoneServices.AuthenticateUser(phoneNum,password);
+    }
+
+    @PutMapping("/contacts/edit")
+    public void saveEdits(@RequestParam String _id,@RequestParam String name, @RequestParam String phoneNum, @RequestParam String email){
+
+        phoneServices.updateContact(_id,name,phoneNum,email);
     }
 
     @GetMapping("/performLogout")

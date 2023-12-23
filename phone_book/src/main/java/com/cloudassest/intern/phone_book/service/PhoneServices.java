@@ -6,6 +6,7 @@ import com.cloudassest.intern.phone_book.repositories.ContactRepository;
 import com.cloudassest.intern.phone_book.repositories.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Id;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class PhoneServices {
@@ -79,6 +81,7 @@ public class PhoneServices {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(true);
         session.setAttribute("phoneNum", phoneNum);
+        session.setMaxInactiveInterval(30*60);
         headers.add("Location", "/contacts/list");
         return new ResponseEntity<>(headers,HttpStatus.FOUND);
     }
@@ -96,4 +99,16 @@ public class PhoneServices {
     }
 
 
+    public void updateContact(String id, String name, String phoneNum, String email) {
+        contactRepository.findById(id).map(
+                existingContact -> {
+                    existingContact.setName(name);
+                    existingContact.setPhoneNum(phoneNum);
+                    existingContact.setEmail(email);
+                    return contactRepository.save(existingContact);
+                })
+                .orElseThrow(()->new RuntimeException("Contact not found with id " + id));
+
+
+    }
 }
