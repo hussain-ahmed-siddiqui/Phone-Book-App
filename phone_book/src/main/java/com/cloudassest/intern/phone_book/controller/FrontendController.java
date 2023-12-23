@@ -17,9 +17,19 @@ public FrontendController(PhoneServices phoneServices){
 
     @GetMapping("/error")
     public ResponseEntity<?> error(){
+
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("/")
+    public String redirect(){
+        {   if(phoneServices.currentSession()==null){
+            return "redirect:/login";
+        }
+        else{
+            return "redirect:/contacts/list";}
+        }
+    }
     @GetMapping("/login")
     public String redirectToLogin()
     {   if(phoneServices.currentSession()!=null){
