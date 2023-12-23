@@ -32,6 +32,9 @@ public FrontendController(PhoneServices phoneServices){
 
     @GetMapping("/register")
     public String signUp(){
+        if(phoneServices.currentSession()!=null){
+            return "redirect:/error";
+        }
         return "redirect:/signup.html";
     }
 
