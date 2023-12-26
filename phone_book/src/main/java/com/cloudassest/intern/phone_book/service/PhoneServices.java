@@ -19,6 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 public class PhoneServices {
@@ -26,6 +27,7 @@ public class PhoneServices {
     ContactRepository contactRepository;
 @Autowired
     UserRepository userRepository;
+
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     public HttpSession currentSession(){
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
@@ -81,6 +83,7 @@ public class PhoneServices {
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(true);
         session.setAttribute("phoneNum", phoneNum);
+        session.setAttribute("userId",user.getId());
         session.setMaxInactiveInterval(30*60);
         headers.add("Location", "/contacts/list");
         return new ResponseEntity<>(headers,HttpStatus.FOUND);
@@ -110,5 +113,11 @@ public class PhoneServices {
                 .orElseThrow(()->new RuntimeException("Contact not found with id " + id));
 
 
+    }
+
+    public List<Contact> searchContact(String query) {
+
+        String regex = "^" + Pattern.quote(query);
+        return contactRepository.findByUserNameRegex(regex, (String) currentSession().getAttribute("userId"));
     }
 }

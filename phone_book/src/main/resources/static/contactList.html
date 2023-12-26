@@ -64,10 +64,9 @@ function saveEdit(row, contact) {
     const editedName = row.cells[0].getElementsByTagName('input')[0].value;
     const editedPhoneNum = row.cells[1].getElementsByTagName('input')[0].value;
     const editedEmail = row.cells[2].getElementsByTagName('input')[0].value;
-
     // Implement API call to save the data or directly update the table if not using an API
        var formData = new FormData();
-formData.append('_id', contact.Id);
+formData.append('_id', contact.id);
 formData.append('name', editedName);
 formData.append('phoneNum', editedPhoneNum);
 formData.append('email', editedEmail);
@@ -157,8 +156,10 @@ function cancelEdit(row, originalContact) {
     // Function to search contacts by name
     function searchContacts() {
         const searchQuery = document.getElementById('searchBox').value;
-        fetch(`/api/contacts/search?name=${encodeURIComponent(searchQuery)}`)
-            .then(response => response.json())
+        console.log(searchQuery);
+       fetch(`/contacts/search?query=${encodeURIComponent(searchQuery)}`)
+            .then(response =>{console.log(response);
+            return response.json();})
             .then(contacts => {
                 const tableBody = document.getElementById('contactTable').getElementsByTagName('tbody')[0];
                 tableBody.innerHTML = ''; // Clear existing table body
@@ -170,6 +171,13 @@ function cancelEdit(row, originalContact) {
                     nameCell.textContent = contact.name;
                     phoneCell.textContent = contact.phoneNum;
                     emailCell.textContent = contact.email; // Assuming 'contact' has an 'email' property
+                    // Adding an Edit button
+                const editCell = row.insertCell(3);
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.className = 'button';
+                editButton.onclick = function() { editContact(row, contact); }; // Function to handle edit
+                editCell.appendChild(editButton);
                 });
             })
             .catch(error => console.error('Error:', error));

@@ -54,6 +54,11 @@ public class ApiController {
         phoneServices.updateContact(_id,name,phoneNum,email);
     }
 
+    @GetMapping("/contacts/search")
+    public List<Contact> searchContacts(@RequestParam String query){
+        return phoneServices.searchContact(query);
+    }
+
     @GetMapping("/performLogout")
     public void logout(){
         HttpSession currSession = phoneServices.currentSession();
