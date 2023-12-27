@@ -14,7 +14,7 @@ public class Contact {
         this.phoneNum = phoneNum;
     }
     @Id
-    private String Id;
+    private String id;
     private String name;
     private String first_name;
     private String middle_name;
@@ -36,11 +36,11 @@ public class Contact {
         this.user = user;
     }
     public String getId() {
-        return Id;
+        return id;
     }
 
     public void setId(String id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getName() {

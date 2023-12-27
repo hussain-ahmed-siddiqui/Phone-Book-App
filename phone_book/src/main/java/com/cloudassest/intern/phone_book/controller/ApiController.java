@@ -54,6 +54,18 @@ public class ApiController {
         phoneServices.updateContact(_id,name,phoneNum,email);
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> sendMail(@RequestParam String phoneNum){
+        return phoneServices.sendOtp(phoneNum);
+    }
+    @PostMapping("/OTP")
+    public ResponseEntity<?> checkOTP(@RequestParam String otp){
+        return phoneServices.verifyOtp(otp);
+    }
+    @PostMapping("/accounts/password-reset")
+    public ResponseEntity<?> reset(@RequestParam String password){
+        return phoneServices.resetPass(password);
+    }
     @GetMapping("/contacts/search")
     public List<Contact> searchContacts(@RequestParam String query){
         return phoneServices.searchContact(query);

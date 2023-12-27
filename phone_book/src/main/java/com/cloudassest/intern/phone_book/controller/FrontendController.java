@@ -47,7 +47,15 @@ public FrontendController(PhoneServices phoneServices){
         }
         return "redirect:/signup.html";
     }
+    @GetMapping("/accounts/verify-otp")
+    public String otpPage(){
+    return "redirect:/otp.html";
+    }
 
+    @GetMapping("/accounts/password-reset")
+    public String reset(){
+    return "redirect:/reset.html";
+    }
 
     @GetMapping("/contacts/new")
     public String createContact(){

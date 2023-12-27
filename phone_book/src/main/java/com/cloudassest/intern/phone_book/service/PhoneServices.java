@@ -1,12 +1,14 @@
 package com.cloudassest.intern.phone_book.service;
 
+import com.cloudassest.intern.phone_book.model.EmailDetails;
+import com.cloudassest.intern.phone_book.model.Otp;
 import com.cloudassest.intern.phone_book.model.User;
 import com.cloudassest.intern.phone_book.model.Contact;
 import com.cloudassest.intern.phone_book.repositories.ContactRepository;
+import com.cloudassest.intern.phone_book.repositories.OtpRepository;
 import com.cloudassest.intern.phone_book.repositories.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.Id;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 @Service
@@ -27,6 +28,10 @@ public class PhoneServices {
     ContactRepository contactRepository;
 @Autowired
     UserRepository userRepository;
+@Autowired
+    OtpRepository otpRepository;
+@Autowired
+EmailServiceImpl emailService;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     public HttpSession currentSession(){
@@ -46,7 +51,6 @@ public class PhoneServices {
     }
     //for fetching the contacts associated with the user that is found by the findByUsername() function
     public List<Contact> findByUser(User currentUser) {
-
         return contactRepository.findByUser(currentUser);
     }
 
@@ -119,5 +123,82 @@ public class PhoneServices {
 
         String regex = "^" + Pattern.quote(query);
         return contactRepository.findByUserNameRegex(regex, (String) currentSession().getAttribute("userId"));
+    }
+
+    public ResponseEntity<?> sendOtp(String phoneNum) {
+        User user = findUser(phoneNum);
+        HttpHeaders headers = new HttpHeaders();
+        if(user!=null) {
+            ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+            HttpSession session = attr.getRequest().getSession(true); // true == allow create
+            session.setAttribute("forLogin",phoneNum);
+            String email = user.getEmail();
+            Random random = new Random();
+            int otp = 1000 + random.nextInt(9000);
+            EmailDetails emailDetails = new EmailDetails();
+            emailDetails.setRecipient(email);
+            emailDetails.setSubject("Password reset code from Phone Book App");
+            emailDetails.setMsgBody("Your One Time Password is" + otp);
+            Otp otpObject = new Otp();
+
+            otpObject.setOtp(String.valueOf(otp));
+            if (emailService.sendSimpleMail(emailDetails) == "1") {
+                otpRepository.save(otpObject);
+
+                headers.add("Location", "/accounts/verify-otp");
+
+            } else {
+                headers.add("Location", "/forgot-password");
+
+            }
+        }
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
+    }
+
+    public ResponseEntity<?> verifyOtp(String otp) {
+        Otp otpObject = new Otp();
+        otpObject.setOtp(otp);
+
+        try {
+            otpObject = otpRepository.findByOtp(otp);
+
+        HttpHeaders headers= new HttpHeaders();
+        if(otpObject!=null){
+            otpRepository.delete(otpObject);
+
+            headers.add("Location","/accounts/password-reset");
+            return new ResponseEntity<>(headers,HttpStatus.FOUND);
+        }
+        else{
+            headers.add("Location","/accounts/verify-otp");
+            return new ResponseEntity<>(headers,HttpStatus.FOUND);
+        }
+        }catch (Exception e){
+            System.out.println("Error: "+e.getMessage());
+        }
+        return null;
+    }
+
+    public ResponseEntity<?> resetPass(String newPassword) {
+        String hashedPassword = passwordEncoder.encode(newPassword);
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attr.getRequest().getSession(false); // true == allow create
+        String phoneNum = (String) session.getAttribute("forLogin");
+        HttpHeaders headers = new HttpHeaders();
+        User user = userRepository.findByPhoneNum(phoneNum);
+            currentSession().invalidate();
+            userRepository.findById(user.getId()).map(
+                    existing_user-> {
+                        existing_user.setPassword(hashedPassword);
+                        return userRepository.save(existing_user);
+                    }
+            )
+                    .orElseThrow(()->new RuntimeException("Contact not found with id " + user.getId()));
+
+        System.out.println("*********************************");
+
+        headers.add("Location","/login");
+        return new ResponseEntity<>(headers,HttpStatus.FOUND);
     }
 }
