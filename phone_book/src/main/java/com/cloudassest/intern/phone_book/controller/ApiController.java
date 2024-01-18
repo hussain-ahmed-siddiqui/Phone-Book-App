@@ -3,6 +3,10 @@ package com.cloudassest.intern.phone_book.controller;
 import com.cloudassest.intern.phone_book.model.Contact;
 import com.cloudassest.intern.phone_book.model.User;
 import com.cloudassest.intern.phone_book.service.PhoneServices;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
@@ -12,7 +16,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 public class ApiController {
 
@@ -23,13 +27,18 @@ public class ApiController {
 
 
 
-
+    @Operation(summary =  "Get all contacts of a user")
+    @ApiResponse(responseCode = "200",description = "Successful operation", content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = Contact.class, type = "array")
+    ))
     @GetMapping("/contacts")
     public List<Contact> listUserContacts(HttpServletRequest request) {
 
         return phoneServices.findByUser(phoneServices.getCurrentUser());
     }
-
+    @Operation(summary = "Save new contact to database")
+    @ApiResponse(responseCode = "303",description = "Redirect to Contacts list page")
     @PostMapping("/contacts/new")
     public ResponseEntity<?> newContact(@RequestParam String first_name, @RequestParam String middle_name, @RequestParam String last_name, @RequestParam String email, @RequestParam String phone){
 
@@ -56,20 +65,24 @@ public class ApiController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> sendMail(@RequestParam String phoneNum){
+        System.out.println("hell yeah");
         return phoneServices.sendOtp(phoneNum);
     }
+    @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping("/OTP")
     public ResponseEntity<?> checkOTP(@RequestParam String otp){
         return phoneServices.verifyOtp(otp);
     }
     @PostMapping("/accounts/password-reset")
-    public ResponseEntity<?> reset(@RequestParam String password){
-        return phoneServices.resetPass(password);
+    public ResponseEntity<?> reset(@RequestParam String password, @RequestParam String phoneNum){
+        return phoneServices.resetPass(password,phoneNum);
     }
     @GetMapping("/contacts/search")
     public List<Contact> searchContacts(@RequestParam String query){
         return phoneServices.searchContact(query);
     }
+
+
 
     @GetMapping("/performLogout")
     public void logout(){

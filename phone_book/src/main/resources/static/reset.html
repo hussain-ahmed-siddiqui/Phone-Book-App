@@ -27,6 +27,8 @@
                 <h3>Confirm Password</h3>
                 <input required name="cpassword" type="Password" 
             placeholder="Password">
+        <input id="phoneNum" name="phoneNum" type="number" hidden="hidden">
+
                 <i class='bx bxs-lock-alt'></i>
             </div>
             
@@ -44,6 +46,7 @@
             <div class="register-link">
                 <!-- <p>Don't have an account? <a href="/register" id="show-register-form">Register</a></p> -->
             </div>
+
         </form>
     
 
@@ -54,7 +57,8 @@
     
     
 <script>
-        
+    document.getElementById('phoneNum').setAttribute('value',localStorage.getItem('phoneNum'));
+    localStorage.clear();
 </script>
     
 </body>
