@@ -27,11 +27,17 @@
     </form>
     <br>
     <button onclick="" class="btn">Resend OTP</button>
-    
+    <input id="phoneNum" name="phoneNum" type="number" hidden="hidden">
 </div>
 
 </body>
-<script></script>
+<script>
+     window.onload = function() {
+            var test = localStorage.getItem('phoneNum');
+            document.getElementById('phoneNum').setAttribute('value', test);
+            console.log(document.getElementById('phoneNum').value);
+        };
+</script>
 </html>
 
 
