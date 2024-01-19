@@ -10,6 +10,7 @@ import com.cloudassest.intern.phone_book.repositories.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +19,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -32,7 +34,16 @@ public class PhoneServices {
     OtpRepository otpRepository;
 @Autowired
 EmailServiceImpl emailService;
-
+    private final HttpHeaders headers;
+    public PhoneServices(){
+        headers = new HttpHeaders();
+        headers.setAccessControlAllowOrigin("*"); // Set this to a specific domain if needed
+        headers.setAccessControlAllowMethods(Arrays.asList(
+                HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS
+        ));
+        headers.setAccessControlMaxAge(3600L);
+        headers.setAccessControlAllowHeaders(Arrays.asList("Content-Type", "Accept", "X-Requested-With", "remember-me"));
+    }
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     public HttpSession currentSession(){
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
@@ -75,15 +86,15 @@ EmailServiceImpl emailService;
         User user = userRepository.findByPhoneNum(phoneNum);
         HttpHeaders headers = new HttpHeaders();
 
-
-        if(!passwordEncoder.matches(password, user.getPassword())){
-            headers.add("Location", "/login");
-            return new ResponseEntity<>(headers,HttpStatus.FOUND);
-        }
         if(user==null){
             headers.add("Location", "/login");
             return new ResponseEntity<>(headers,HttpStatus.FOUND);
         }
+        if(!passwordEncoder.matches(password, user.getPassword())){
+            headers.add("Location", "/login");
+            return new ResponseEntity<>(headers,HttpStatus.FOUND);
+        }
+
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(true);
         session.setAttribute("phoneNum", phoneNum);
